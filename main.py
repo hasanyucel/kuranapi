@@ -36,6 +36,14 @@ def get_sureler():
     sureler = [{"sure_no": row[0], "ayet_sayisi": row[1], "sure_ismi": row[2]} for row in rows]
     return sureler
 
+def get_sure_adi(sure_no):
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+    cur.execute(f'SELECT sure_adi FROM sureler where sure_no = {sure_no}')
+    row = cur.fetchone()
+    conn.close()
+    return row[0]
+
 @app.get("/")
 def bismillahirrahmanirrahim():
     result = {
@@ -43,7 +51,9 @@ def bismillahirrahmanirrahim():
                 "Api Dokümanı" : "/docs",
                 "Diller": "/diller",
                 "Sureler": "/sureler",
-                "Kaynaklar":["https://tanzil.net","https://www.ubilisim.com"]
+                "Kaynaklar":["https://tanzil.net","https://www.ubilisim.com"],
+                "Developed By":"Hasan Hüseyin YÜCEL",
+                "Contact":"https://www.linkedin.com/in/hhy34/"
              }
     return result
 
@@ -62,12 +72,14 @@ def get_ayet(dil: str, sure: int, ayet: int):
         if lang_value == dil:
             text = get_metin(dil,sure,ayet)
             if text:
+                sure_adi = get_sure_adi(sure)
                 metin = text[0]
                 result = {
                     "Dil": lang_key,
-                    "Sure": sure,
-                    "Ayet": ayet,
-                    "Metin": text[0]
+                    "Sure No": sure,
+                    "Sure Adı" : sure_adi,
+                    "Ayet No": ayet,
+                    "Ayet": text[0]
                 }
                 return result
             else:
